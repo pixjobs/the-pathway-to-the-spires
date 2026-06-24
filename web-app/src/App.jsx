@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import CHAPTERS_DATA from './data.json';
+import JOURNAL_DATA from './journal.json';
 
 const MOTIVATION_QUOTES = [
   {
@@ -184,6 +185,8 @@ function renderReferenceLine(line, rIdx) {
 
 function App() {
   const [activeChap, setActiveChap] = useState(0);
+  const [activeTab, setActiveTab] = useState("chapters"); // "chapters" or "journal"
+  const [activeJournalIdx, setActiveJournalIdx] = useState(0);
   const [quoteIdx, setQuoteIdx] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
   const [checkedItems, setCheckedItems] = useState({});
@@ -320,69 +323,140 @@ function App() {
         {/* Sidebar: Search, Navigation & Portals */}
         <div className="lg:col-span-4 space-y-6">
           
-          {/* Chapter Search (Classically Boxed) */}
-          <div className="bg-white p-5 rounded border border-stone-200 shadow-sm">
-            <label className="text-[10px] font-bold font-mono text-stone-500 uppercase tracking-wider block mb-2">
-              Search Index & Corpus
-            </label>
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Search concepts, chapters..."
-                value={searchQuery}
-                onChange={(e) => { setSearchQuery(e.target.value); setActiveChap(0); }}
-                className="w-full text-xs font-sans px-4 py-2 bg-stone-50 border border-stone-200 rounded focus:outline-none focus:ring-1 focus:ring-stone-400 focus:bg-white transition duration-150"
-              />
-              {searchQuery && (
-                <button 
-                  onClick={() => setSearchQuery("")} 
-                  className="absolute right-3 top-2 text-stone-400 hover:text-stone-600 text-sm font-bold"
-                >
-                  ✕
-                </button>
-              )}
-            </div>
+          {/* Main Tab Switcher */}
+          <div className="bg-white p-2 rounded border border-stone-200 shadow-sm flex gap-1 font-sans">
+            <button
+              onClick={() => setActiveTab("chapters")}
+              className={`flex-1 text-center py-2 text-[10px] font-extrabold rounded transition duration-150 tracking-wider uppercase ${
+                activeTab === "chapters"
+                  ? "bg-[#1B365D] text-white shadow-sm"
+                  : "text-stone-600 hover:text-stone-900 bg-stone-50"
+              }`}
+            >
+              📖 Milestones Guide
+            </button>
+            <button
+              onClick={() => setActiveTab("journal")}
+              className={`flex-1 text-center py-2 text-[10px] font-extrabold rounded transition duration-150 tracking-wider uppercase ${
+                activeTab === "journal"
+                  ? "bg-[#1B365D] text-white shadow-sm"
+                  : "text-stone-600 hover:text-stone-900 bg-stone-50"
+              }`}
+            >
+              📓 Living Journal
+            </button>
           </div>
 
-          {/* Chapters Navigation (Classical Editorial Block) */}
-          <div className="bg-white p-5 rounded border border-stone-200 shadow-sm">
-            <h3 className="text-xs font-bold font-serif text-stone-900 mb-4 uppercase tracking-wider border-b border-stone-200 pb-2 flex justify-between">
-              <span>Chapter Navigation</span>
-              <span className="text-stone-400 text-xs font-mono">{filteredChapters.length} found</span>
-            </h3>
-            
-            <div className="flex flex-col gap-1.5 max-h-[350px] overflow-y-auto pr-1">
-              {filteredChapters.length === 0 ? (
-                <div className="text-center py-6 text-stone-400 text-xs italic font-serif">
-                  No chapters match your query.
-                </div>
-              ) : (
-                filteredChapters.map((chap, idx) => {
-                  const isCurrent = activeChapterData && activeChapterData.focus === chap.focus;
-                  const titleToDisplay = lang === "zh" && chap.title_zh ? chap.title_zh : lang === "de" && chap.title_de ? chap.title_de : chap.title;
-                  const focusToDisplay = lang === "zh" && chap.focus_zh ? chap.focus_zh : lang === "de" && chap.focus_de ? chap.focus_de : chap.focus;
-                  return (
-                    <button
-                      key={idx}
-                      onClick={() => setActiveChap(idx)}
-                      className={`w-full text-left px-3.5 py-2.5 rounded transition duration-150 text-xs font-medium border ${
-                        isCurrent
-                          ? 'bg-[#1B365D] text-white border-[#1B365D] font-bold'
-                          : 'bg-[#FAF8F5] text-stone-700 hover:bg-stone-50 border-stone-200'
-                      }`}
+          {activeTab === "chapters" ? (
+            <>
+              {/* Chapter Search (Classically Boxed) */}
+              <div className="bg-white p-5 rounded border border-stone-200 shadow-sm">
+                <label className="text-[10px] font-bold font-mono text-stone-500 uppercase tracking-wider block mb-2">
+                  Search Index & Corpus
+                </label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="Search concepts, chapters..."
+                    value={searchQuery}
+                    onChange={(e) => { setSearchQuery(e.target.value); setActiveChap(0); }}
+                    className="w-full text-xs font-sans px-4 py-2 bg-stone-50 border border-stone-200 rounded focus:outline-none focus:ring-1 focus:ring-stone-400 focus:bg-white transition duration-150"
+                  />
+                  {searchQuery && (
+                    <button 
+                      onClick={() => setSearchQuery("")} 
+                      className="absolute right-3 top-2 text-stone-400 hover:text-stone-600 text-sm font-bold"
                     >
-                      <div className="font-serif">
-                        Ch {chap.num}: {titleToDisplay.replace(/^Chapter\s*\d+:\s*/i, '')}
-                      </div>
-                      <div className={`text-[10px] mt-0.5 font-normal font-sans ${isCurrent ? 'text-stone-200' : 'text-stone-400'}`}>
-                        {focusToDisplay}
-                      </div>
+                      ✕
                     </button>
-                  );
-                })
-              )}
+                  )}
+                </div>
+              </div>
+
+              {/* Chapters Navigation (Classical Editorial Block) */}
+              <div className="bg-white p-5 rounded border border-stone-200 shadow-sm">
+                <h3 className="text-xs font-bold font-serif text-stone-900 mb-4 uppercase tracking-wider border-b border-stone-200 pb-2 flex justify-between">
+                  <span>Chapter Navigation</span>
+                  <span className="text-stone-400 text-xs font-mono">{filteredChapters.length} found</span>
+                </h3>
+                
+                <div className="flex flex-col gap-1.5 max-h-[350px] overflow-y-auto pr-1">
+                  {filteredChapters.length === 0 ? (
+                    <div className="text-center py-6 text-stone-400 text-xs italic font-serif">
+                      No chapters match your query.
+                    </div>
+                  ) : (
+                    filteredChapters.map((chap, idx) => {
+                      const isCurrent = activeChapterData && activeChapterData.focus === chap.focus;
+                      const titleToDisplay = lang === "zh" && chap.title_zh ? chap.title_zh : lang === "de" && chap.title_de ? chap.title_de : chap.title;
+                      const focusToDisplay = lang === "zh" && chap.focus_zh ? chap.focus_zh : lang === "de" && chap.focus_de ? chap.focus_de : chap.focus;
+                      return (
+                        <button
+                          key={idx}
+                          onClick={() => setActiveChap(idx)}
+                          className={`w-full text-left px-3.5 py-2.5 rounded transition duration-150 text-xs font-medium border ${
+                            isCurrent
+                              ? 'bg-[#1B365D] text-white border-[#1B365D] font-bold'
+                              : 'bg-[#FAF8F5] text-stone-700 hover:bg-stone-50 border-stone-200'
+                          }`}
+                        >
+                          <div className="font-serif">
+                            Ch {chap.num}: {titleToDisplay.replace(/^Chapter\s*\d+:\s*/i, '')}
+                          </div>
+                          <div className={`text-[10px] mt-0.5 font-normal font-sans ${isCurrent ? 'text-stone-200' : 'text-stone-400'}`}>
+                            {focusToDisplay}
+                          </div>
+                        </button>
+                      );
+                    })
+                  )}
+                </div>
+              </div>
+            </>
+          ) : (
+            /* Living Journal Navigation List */
+            <div className="bg-white p-5 rounded border border-stone-200 shadow-sm">
+              <h3 className="text-xs font-bold font-serif text-stone-900 mb-4 uppercase tracking-wider border-b border-stone-200 pb-2 flex justify-between">
+                <span>Timeline Log Entries</span>
+                <span className="text-stone-400 text-xs font-mono">{JOURNAL_DATA.length} logs</span>
+              </h3>
+              
+              <div className="flex flex-col gap-1.5 max-h-[420px] overflow-y-auto pr-1 font-sans">
+                {JOURNAL_DATA.length === 0 ? (
+                  <div className="text-center py-8 text-stone-400 text-xs italic font-serif">
+                    No journal logs available yet. Add YYYY-MM-DD.md files to memory/ to update!
+                  </div>
+                ) : (
+                  JOURNAL_DATA.map((entry, idx) => {
+                    const isCurrent = activeJournalIdx === idx;
+                    const firstLine = entry.content.split('\n').filter(Boolean)[0] || "";
+                    const previewTitle = firstLine.replace(/^#\s*/, '').replace(/^OpenClaw Daily Memories\s*-\s*/, '');
+                    return (
+                      <button
+                        key={idx}
+                        onClick={() => setActiveJournalIdx(idx)}
+                        className={`w-full text-left px-3.5 py-2.5 rounded transition duration-150 text-xs font-medium border ${
+                          isCurrent
+                            ? 'bg-[#1B365D] text-white border-[#1B365D] font-bold'
+                            : 'bg-[#FAF8F5] text-stone-700 hover:bg-stone-50 border-stone-200'
+                        }`}
+                      >
+                        <div className="font-mono font-bold text-[11px] flex justify-between items-center">
+                          <span>📅 {entry.date}</span>
+                          <span className={`text-[9px] uppercase px-1 rounded ${isCurrent ? 'bg-white/20 text-white' : 'bg-stone-200 text-stone-600'}`}>
+                            Log #{JOURNAL_DATA.length - idx}
+                          </span>
+                        </div>
+                        <div className={`text-[10px] mt-1 font-serif leading-relaxed truncate ${isCurrent ? 'text-stone-200' : 'text-stone-500'}`}>
+                          {previewTitle || "Daily Notes"}
+                        </div>
+                      </button>
+                    );
+                  })
+                )}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Motivation Quote (Prestige Muted Callout) */}
           <div className="bg-[#FAF8F5] border border-stone-200 p-5 rounded">
@@ -481,89 +555,127 @@ function App() {
 
         {/* Content Panel & Interactive Audit Checklist */}
         <div className="lg:col-span-8 space-y-6">
-          {activeChapterData ? (
-            <>
-              {/* Main Chapter Content Card (High-End Newspaper Reading Block) */}
+          {activeTab === "chapters" ? (
+            activeChapterData ? (
+              <>
+                {/* Main Chapter Content Card (High-End Newspaper Reading Block) */}
+                <div className="bg-[#FDFBF9] p-8 sm:p-12 rounded border border-stone-200/80 shadow-sm flex flex-col justify-between min-h-[400px]">
+                  <div>
+                    <div className="text-[10px] text-stone-500 font-bold uppercase tracking-widest border-b border-stone-100 pb-2 mb-6 flex justify-between items-center font-mono">
+                      <span>Active Milestone Focus</span>
+                      <span>{activeChapterFocus.split(" ")[0] || "Ch " + activeChapterData.num}</span>
+                    </div>
+                    
+                    <h2 className="text-2xl sm:text-3xl font-bold font-serif text-stone-900 mb-6 leading-tight tracking-tight border-b-2 border-double border-stone-200 pb-4">
+                      Chapter {activeChapterData.num}: {activeChapterTitle.replace(/^Chapter\s*\d+:\s*/i, '')}
+                    </h2>
+                    
+                    <h3 className="text-xs font-bold text-stone-500 mb-6 uppercase tracking-widest font-mono">
+                      {activeChapterFocus}
+                    </h3>
+
+                    {/* Reading Canvas: Serif, justified, Drop-cap in the first paragraph */}
+                    <div className="font-serif text-stone-850 text-base md:text-[17px] leading-relaxed md:leading-loose text-[#33312E] space-y-6 max-w-2xl mx-auto">
+                      {parseMarkdown(activeChapterText)}
+                    </div>
+                  </div>
+                  
+                  {/* Academic Citation Footer (Muted Scholarly Citation) */}
+                  <div className="border-t border-stone-200 pt-6 mt-10 bg-[#FAF8F5] p-5 rounded border border-stone-200/50">
+                    <h4 className="text-[10px] font-bold text-stone-500 uppercase tracking-widest mb-2.5 font-mono">📌 Academic Citation (Harvard Style)</h4>
+                    <div className="space-y-2">
+                      {activeChapterRef.split('\n').filter(Boolean).map((line, rIdx) => renderReferenceLine(line, rIdx))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Interactive Self-Awareness Audit Checklist (Clean Editorial Appendix) */}
+                {AUDIT_ITEMS[activeChapterData.num] && (
+                  <div className="bg-[#FAF8F5] text-stone-800 p-8 rounded border border-stone-200 shadow-sm">
+                    <div className="flex justify-between items-center border-b border-stone-200 pb-3 mb-5">
+                      <h3 className="text-xs font-bold uppercase tracking-widest text-[#1B365D] font-mono flex items-center gap-2">
+                        <span>🧠 Metacognitive Progress Check</span>
+                      </h3>
+                      <span className="text-[10px] bg-stone-200 text-stone-700 font-mono px-2 py-0.5 rounded">
+                        Ch {activeChapterData.num} Appendix
+                      </span>
+                    </div>
+                    <p className="text-xs text-stone-500 italic mb-5">
+                      Read the diagnostic criteria below and toggle checkboxes to log your own self-directed study trajectory:
+                    </p>
+                    <div className="space-y-3 font-sans">
+                      {AUDIT_ITEMS[activeChapterData.num].map((item, idx) => {
+                        const isChecked = !!checkedItems[`${activeChapterData.num}-${idx}`];
+                        return (
+                          <div 
+                            key={idx} 
+                            onClick={() => handleCheckboxChange(activeChapterData.num, idx)}
+                            className={`flex items-start gap-3.5 p-3.5 rounded border cursor-pointer transition duration-150 ${
+                              isChecked 
+                                ? 'bg-white border-stone-400 shadow-inner' 
+                                : 'bg-white/40 border-stone-200 hover:bg-white'
+                            }`}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={isChecked}
+                              onChange={() => {}} // Controlled by outer div click
+                              className="mt-0.5 rounded border-stone-300 text-[#1B365D] focus:ring-[#1B365D]"
+                            />
+                            <p className="text-xs leading-relaxed text-stone-700 select-none">
+                              {item}
+                            </p>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="bg-white p-12 rounded border border-stone-200 shadow-sm text-center font-serif">
+                <span className="text-4xl block mb-3">🔍</span>
+                <p className="text-stone-500 text-sm italic">
+                  Select a chapter from the list or clear your search to explore the Strategic Admissions Guide.
+                </p>
+              </div>
+            )
+          ) : (
+            /* Living Journal Content Card */
+            JOURNAL_DATA[activeJournalIdx] ? (
               <div className="bg-[#FDFBF9] p-8 sm:p-12 rounded border border-stone-200/80 shadow-sm flex flex-col justify-between min-h-[400px]">
                 <div>
                   <div className="text-[10px] text-stone-500 font-bold uppercase tracking-widest border-b border-stone-100 pb-2 mb-6 flex justify-between items-center font-mono">
-                    <span>Active Milestone Focus</span>
-                    <span>{activeChapterFocus.split(" ")[0] || "Ch " + activeChapterData.num}</span>
+                    <span>Journal Entry Log</span>
+                    <span>{JOURNAL_DATA[activeJournalIdx].date}</span>
                   </div>
                   
                   <h2 className="text-2xl sm:text-3xl font-bold font-serif text-stone-900 mb-6 leading-tight tracking-tight border-b-2 border-double border-stone-200 pb-4">
-                    Chapter {activeChapterData.num}: {activeChapterTitle.replace(/^Chapter\s*\d+:\s*/i, '')}
+                    📅 Entry: {JOURNAL_DATA[activeJournalIdx].date}
                   </h2>
-                  
-                  <h3 className="text-xs font-bold text-stone-500 mb-6 uppercase tracking-widest font-mono">
-                    {activeChapterFocus}
-                  </h3>
 
-                  {/* Reading Canvas: Serif, justified, Drop-cap in the first paragraph */}
+                  {/* Reading Canvas for Journal Entry: Serif, justified */}
                   <div className="font-serif text-stone-850 text-base md:text-[17px] leading-relaxed md:leading-loose text-[#33312E] space-y-6 max-w-2xl mx-auto">
-                    {parseMarkdown(activeChapterText)}
+                    {parseMarkdown(JOURNAL_DATA[activeJournalIdx].content)}
                   </div>
                 </div>
                 
                 {/* Academic Citation Footer (Muted Scholarly Citation) */}
                 <div className="border-t border-stone-200 pt-6 mt-10 bg-[#FAF8F5] p-5 rounded border border-stone-200/50">
-                  <h4 className="text-[10px] font-bold text-stone-500 uppercase tracking-widest mb-2.5 font-mono">📌 Academic Citation (Harvard Style)</h4>
-                  <div className="space-y-2">
-                    {activeChapterRef.split('\n').filter(Boolean).map((line, rIdx) => renderReferenceLine(line, rIdx))}
-                  </div>
+                  <h4 className="text-[10px] font-bold text-stone-500 uppercase tracking-widest mb-1.5 font-mono">📌 System Event Information</h4>
+                  <p className="text-xs text-stone-600 font-sans leading-relaxed italic">
+                    This journal entry was synchronized directly from your local OpenClaw workspace memories on {JOURNAL_DATA[activeJournalIdx].date}.
+                  </p>
                 </div>
               </div>
-
-              {/* Interactive Self-Awareness Audit Checklist (Clean Editorial Appendix) */}
-              {AUDIT_ITEMS[activeChapterData.num] && (
-                <div className="bg-[#FAF8F5] text-stone-800 p-8 rounded border border-stone-200 shadow-sm">
-                  <div className="flex justify-between items-center border-b border-stone-200 pb-3 mb-5">
-                    <h3 className="text-xs font-bold uppercase tracking-widest text-[#1B365D] font-mono flex items-center gap-2">
-                      <span>🧠 Metacognitive Progress Check</span>
-                    </h3>
-                    <span className="text-[10px] bg-stone-200 text-stone-700 font-mono px-2 py-0.5 rounded">
-                      Ch {activeChapterData.num} Appendix
-                    </span>
-                  </div>
-                  <p className="text-xs text-stone-500 italic mb-5">
-                    Read the diagnostic criteria below and toggle checkboxes to log your own self-directed study trajectory:
-                  </p>
-                  <div className="space-y-3 font-sans">
-                    {AUDIT_ITEMS[activeChapterData.num].map((item, idx) => {
-                      const isChecked = !!checkedItems[`${activeChapterData.num}-${idx}`];
-                      return (
-                        <div 
-                          key={idx} 
-                          onClick={() => handleCheckboxChange(activeChapterData.num, idx)}
-                          className={`flex items-start gap-3.5 p-3.5 rounded border cursor-pointer transition duration-150 ${
-                            isChecked 
-                              ? 'bg-white border-stone-400 shadow-inner' 
-                              : 'bg-white/40 border-stone-200 hover:bg-white'
-                          }`}
-                        >
-                          <input
-                            type="checkbox"
-                            checked={isChecked}
-                            onChange={() => {}} // Controlled by outer div click
-                            className="mt-0.5 rounded border-stone-300 text-[#1B365D] focus:ring-[#1B365D]"
-                          />
-                          <p className="text-xs leading-relaxed text-stone-700 select-none">
-                            {item}
-                          </p>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-            </>
-          ) : (
-            <div className="bg-white p-12 rounded border border-stone-200 shadow-sm text-center font-serif">
-              <span className="text-4xl block mb-3">🔍</span>
-              <p className="text-stone-500 text-sm italic">
-                Select a chapter from the list or clear your search to explore the Strategic Admissions Guide.
-              </p>
-            </div>
+            ) : (
+              <div className="bg-white p-12 rounded border border-stone-200 shadow-sm text-center font-serif">
+                <span className="text-4xl block mb-3">📝</span>
+                <p className="text-stone-500 text-sm italic">
+                  Select a journal log from the timeline on the left to review daily progress.
+                </p>
+              </div>
+            )
           )}
         </div>
 

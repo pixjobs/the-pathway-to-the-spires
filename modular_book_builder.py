@@ -5,6 +5,7 @@ import time
 import torch
 import requests
 import logging
+import glob
 from sentence_transformers import SentenceTransformer
 from docx import Document
 from docx.shared import Inches, Pt, RGBColor
@@ -245,7 +246,7 @@ def run_safety_checks_and_git_push():
     logger.info("Committing and pushing updates safely to GitHub...")
     try:
         # Stage files
-        subprocess.run(["git", "add", "The_Pathway_to_the_Spires.docx", "web-app/src/data.json"], cwd=PROJECT_DIR, check=True)
+        subprocess.run(["git", "add", "The_Pathway_to_the_Spires.docx", "web-app/src/data.json", "web-app/src/journal.json"], cwd=PROJECT_DIR, check=True)
         # Commit files
         res_commit = subprocess.run(["git", "commit", "-m", "Auto-compile: Additive update to The Pathway to the Spires (Validated via Pytest)"], cwd=PROJECT_DIR, capture_output=True, text=True)
         if "nothing to commit" in res_commit.stdout or "nothing added to commit" in res_commit.stdout:
@@ -301,8 +302,53 @@ def update_react_app_real(generated_chapters):
     # Run safety checks and push to GitHub!
     run_safety_checks_and_git_push()
 
+JOURNAL_JSON_PATH = os.path.join(PROJECT_DIR, "web-app/src/journal.json")
+
+def build_living_journal():
+    logger.info("Crawling memory/ directory for daily living journal entries...")
+    memory_dir = "/home/yang/.openclaw/workspace/memory"
+    if not os.path.exists(memory_dir):
+        logger.warning(f"Memory directory not found at {memory_dir}. Skipping living journal generation.")
+        return []
+
+    # Find all files matching YYYY-MM-DD.md
+    files = glob.glob(os.path.join(memory_dir, "????-??-??.md"))
+    journal_entries = []
+    
+    # Sort files chronologically descending (newest first)
+    files.sort(reverse=True)
+    
+    for fpath in files:
+        filename = os.path.basename(fpath)
+        date_str = filename.replace(".md", "")
+        
+        try:
+            with open(fpath, "r", encoding="utf-8") as f:
+                content = f.read()
+            
+            logger.info(f"Loaded journal entry for date: {date_str}")
+            journal_entries.append({
+                "date": date_str,
+                "content": content
+            })
+        except Exception as e:
+            logger.error(f"Failed to read journal file {filename}: {e}")
+
+    # Write to journal.json
+    try:
+        with open(JOURNAL_JSON_PATH, "w", encoding="utf-8") as f:
+            json.dump(journal_entries, f, indent=2, ensure_ascii=False)
+        logger.info("journal.json successfully written and synchronized!")
+    except Exception as e:
+        logger.error(f"Failed to write journal.json: {e}")
+        
+    return journal_entries
+
 def main():
     logger.info("Initializing Modular Book Builder Pipeline (Additive & Safe Mode)...")
+    
+    # 0. Load and compile living journal entries
+    journal_entries = build_living_journal()
     
     # 1. Load existing React data
     generated_chapters = []
@@ -470,6 +516,44 @@ def main():
             run.font.size = Pt(11)
 
         doc.add_page_break()
+
+    # Append Living Journal to Word Document!
+    if journal_entries:
+        logger.info("Appending Living Journal section to Word Document...")
+        h = doc.add_paragraph()
+        h.text = "Appendix: Living Journal & Progress Log"
+        h.paragraph_format.space_before = Pt(20)
+        h.paragraph_format.space_after = Pt(10)
+        for r in h.runs:
+            r.font.name = "Georgia"
+            r.font.bold = True
+            r.font.size = Pt(22)
+            r.font.color.rgb = RGBColor(27, 54, 93)
+
+        for entry in journal_entries:
+            # Date heading
+            ed = doc.add_paragraph()
+            ed.text = f"Entry Date: {entry['date']}"
+            ed.paragraph_format.space_before = Pt(14)
+            ed.paragraph_format.space_after = Pt(4)
+            for r in ed.runs:
+                r.font.name = "Georgia"
+                r.font.bold = True
+                r.font.size = Pt(14)
+                r.font.color.rgb = RGBColor(80, 80, 80)
+
+            # Body lines of journal markdown
+            lines = entry["content"].split("\n")
+            for line in lines:
+                line_str = line.strip()
+                if not line_str:
+                    continue
+                p = doc.add_paragraph()
+                p.paragraph_format.space_after = Pt(4)
+                p.paragraph_format.line_spacing = 1.15
+                run = p.add_run(line_str)
+                run.font.name = "Calibri"
+                run.font.size = Pt(10.5)
 
     # Save Word Document
     doc.save(OUTPUT_FILE)
