@@ -98,7 +98,7 @@ function App() {
             <span className="text-2xl">🏛️</span>
             <div>
               <h1 className="text-xl font-bold font-serif text-slate-900 tracking-wide uppercase">A Pathway to Success</h1>
-              <p className="text-xs text-slate-500 font-semibold tracking-wider font-mono">Oxbridge Admissions Strategic Companion</p>
+              <p className="text-xs text-slate-500 font-semibold tracking-wider font-mono">Elite G5 Admissions & Strategic Success Companion</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
