@@ -54,11 +54,105 @@ const AUDIT_ITEMS = {
   ]
 };
 
+function renderInlineMarkdown(text) {
+  if (!text) return "";
+  const boldParts = text.split('**');
+  return boldParts.map((bPart, bIdx) => {
+    const isBold = bIdx % 2 === 1;
+    const italicParts = bPart.split('*');
+    const renderedItalic = italicParts.map((iPart, iIdx) => {
+      const isItalic = iIdx % 2 === 1;
+      return isItalic ? <em key={iIdx}>{iPart}</em> : iPart;
+    });
+    return isBold ? <strong key={bIdx}>{renderedItalic}</strong> : renderedItalic;
+  });
+}
+
+function parseMarkdown(text) {
+  if (!text) return null;
+  const cleanText = text.replace(/\r/g, '');
+  const paragraphs = cleanText.split('\n\n').filter(Boolean);
+  let hasShownDropCap = false;
+
+  return paragraphs.map((para, pIdx) => {
+    const trimmed = para.trim();
+    if (trimmed.startsWith('# ')) {
+      return null; // Skip main title
+    }
+    if (trimmed.startsWith('#### ')) {
+      return (
+        <h4 key={pIdx} className="text-xs font-bold text-stone-700 tracking-wider uppercase font-mono mt-6 mb-2">
+          {trimmed.replace('#### ', '')}
+        </h4>
+      );
+    }
+    if (trimmed.startsWith('### ')) {
+      return (
+        <h3 key={pIdx} className="text-lg font-bold text-stone-900 font-serif mt-8 mb-3 border-b border-stone-200 pb-1.5 leading-tight">
+          {trimmed.replace('### ', '')}
+        </h3>
+      );
+    }
+    if (trimmed.startsWith('## ')) {
+      return (
+        <h2 key={pIdx} className="text-xl font-bold text-stone-950 font-serif mt-10 mb-4 leading-tight">
+          {trimmed.replace('## ', '')}
+        </h2>
+      );
+    }
+    if (trimmed.startsWith('---')) {
+      return <hr key={pIdx} className="border-t border-stone-300 my-6" />;
+    }
+
+    const lines = para.split('\n').map(l => l.trim()).filter(Boolean);
+    const isBulletList = lines.every(line => line.startsWith('* ') || line.startsWith('- '));
+    const isNumberedList = lines.every(line => /^\d+\.\s+/.test(line));
+
+    if (isBulletList) {
+      return (
+        <ul key={pIdx} className="list-disc pl-5 my-4 space-y-2 text-justify text-stone-800">
+          {lines.map((line, lIdx) => {
+            const cleanLine = line.replace(/^[\*\-]\s+/, '');
+            return <li key={lIdx}>{renderInlineMarkdown(cleanLine)}</li>;
+          })}
+        </ul>
+      );
+    }
+
+    if (isNumberedList) {
+      return (
+        <ol key={pIdx} className="list-decimal pl-5 my-4 space-y-3.5 text-justify text-stone-800">
+          {lines.map((line, lIdx) => {
+            const cleanLine = line.replace(/^\d+\.\s+/, '');
+            return <li key={lIdx}>{renderInlineMarkdown(cleanLine)}</li>;
+          })}
+        </ol>
+      );
+    }
+
+    if (!hasShownDropCap) {
+      hasShownDropCap = true;
+      return (
+        <p key={pIdx} className="first-letter:text-5xl first-letter:font-serif first-letter:font-bold first-letter:text-[#1B365D] first-letter:float-left first-letter:mr-3 first-letter:mt-1 text-justify leading-relaxed text-stone-850">
+          {renderInlineMarkdown(trimmed)}
+        </p>
+      );
+    }
+
+    return (
+      <p key={pIdx} className="text-justify leading-relaxed text-stone-850">
+        {renderInlineMarkdown(trimmed)}
+      </p>
+    );
+  });
+}
+
 function App() {
   const [activeChap, setActiveChap] = useState(0);
   const [quoteIdx, setQuoteIdx] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
   const [checkedItems, setCheckedItems] = useState({});
+  const [lang, setLang] = useState("en"); // "en", "zh", "de"
 
   const rotateQuote = () => {
     setQuoteIdx((prev) => (prev + 1) % MOTIVATION_QUOTES.length);
@@ -79,6 +173,34 @@ function App() {
     const current = filteredChapters[activeChap] || filteredChapters[0];
     return current;
   }, [filteredChapters, activeChap]);
+
+  const activeChapterTitle = useMemo(() => {
+    if (!activeChapterData) return "";
+    if (lang === "zh" && activeChapterData.title_zh) return activeChapterData.title_zh;
+    if (lang === "de" && activeChapterData.title_de) return activeChapterData.title_de;
+    return activeChapterData.title;
+  }, [activeChapterData, lang]);
+
+  const activeChapterFocus = useMemo(() => {
+    if (!activeChapterData) return "";
+    if (lang === "zh" && activeChapterData.focus_zh) return activeChapterData.focus_zh;
+    if (lang === "de" && activeChapterData.focus_de) return activeChapterData.focus_de;
+    return activeChapterData.focus;
+  }, [activeChapterData, lang]);
+
+  const activeChapterText = useMemo(() => {
+    if (!activeChapterData) return "";
+    if (lang === "zh" && activeChapterData.text_zh) return activeChapterData.text_zh;
+    if (lang === "de" && activeChapterData.text_de) return activeChapterData.text_de;
+    return activeChapterData.text;
+  }, [activeChapterData, lang]);
+
+  const activeChapterRef = useMemo(() => {
+    if (!activeChapterData) return "";
+    if (lang === "zh" && activeChapterData.ref_zh) return activeChapterData.ref_zh;
+    if (lang === "de" && activeChapterData.ref_de) return activeChapterData.ref_de;
+    return activeChapterData.ref;
+  }, [activeChapterData, lang]);
 
   const handleCheckboxChange = (chapNum, idx) => {
     const key = `${chapNum}-${idx}`;
@@ -102,9 +224,41 @@ function App() {
               Elite G5 Admissions & Strategic Spires Companion
             </p>
           </div>
-          <div className="flex items-center gap-3">
-            <span className="text-xs bg-[#1B365D] text-stone-100 px-3 py-1 rounded font-mono font-bold tracking-wider uppercase">
-              NPM DEV SERVER
+          <div className="flex items-center gap-4">
+            <div className="flex bg-stone-100 p-0.5 rounded border border-stone-200 shadow-inner font-sans">
+              <button
+                onClick={() => setLang("en")}
+                className={`px-2.5 py-1 text-[10px] font-extrabold rounded transition duration-150 tracking-wider ${
+                  lang === "en"
+                    ? "bg-[#1B365D] text-white shadow-sm"
+                    : "text-stone-600 hover:text-stone-900"
+                }`}
+              >
+                EN
+              </button>
+              <button
+                onClick={() => setLang("zh")}
+                className={`px-2.5 py-1 text-[10px] font-extrabold rounded transition duration-150 tracking-wider ${
+                  lang === "zh"
+                    ? "bg-[#1B365D] text-white shadow-sm"
+                    : "text-stone-600 hover:text-stone-900"
+                }`}
+              >
+                ZH
+              </button>
+              <button
+                onClick={() => setLang("de")}
+                className={`px-2.5 py-1 text-[10px] font-extrabold rounded transition duration-150 tracking-wider ${
+                  lang === "de"
+                    ? "bg-[#1B365D] text-white shadow-sm"
+                    : "text-stone-600 hover:text-stone-900"
+                }`}
+              >
+                DE
+              </button>
+            </div>
+            <span className="text-[10px] bg-stone-200 text-stone-700 px-2.5 py-1 rounded font-mono font-bold tracking-widest uppercase shadow-sm">
+              LOCAL GPU Spark
             </span>
           </div>
         </div>
@@ -170,6 +324,8 @@ function App() {
               ) : (
                 filteredChapters.map((chap, idx) => {
                   const isCurrent = activeChapterData && activeChapterData.focus === chap.focus;
+                  const titleToDisplay = lang === "zh" && chap.title_zh ? chap.title_zh : lang === "de" && chap.title_de ? chap.title_de : chap.title;
+                  const focusToDisplay = lang === "zh" && chap.focus_zh ? chap.focus_zh : lang === "de" && chap.focus_de ? chap.focus_de : chap.focus;
                   return (
                     <button
                       key={idx}
@@ -181,10 +337,10 @@ function App() {
                       }`}
                     >
                       <div className="font-serif">
-                        Ch {chap.num}: {chap.title.replace(/^Chapter\s*\d+:\s*/i, '')}
+                        Ch {chap.num}: {titleToDisplay.replace(/^Chapter\s*\d+:\s*/i, '')}
                       </div>
                       <div className={`text-[10px] mt-0.5 font-normal font-sans ${isCurrent ? 'text-stone-200' : 'text-stone-400'}`}>
-                        {chap.focus}
+                        {focusToDisplay}
                       </div>
                     </button>
                   );
@@ -297,29 +453,20 @@ function App() {
                 <div>
                   <div className="text-[10px] text-stone-500 font-bold uppercase tracking-widest border-b border-stone-100 pb-2 mb-6 flex justify-between items-center font-mono">
                     <span>Active Milestone Focus</span>
-                    <span>{activeChapterData.focus.split(" ")[0]}</span>
+                    <span>{activeChapterFocus.split(" ")[0] || "Ch " + activeChapterData.num}</span>
                   </div>
                   
                   <h2 className="text-2xl sm:text-3xl font-bold font-serif text-stone-900 mb-6 leading-tight tracking-tight border-b-2 border-double border-stone-200 pb-4">
-                    Chapter {activeChapterData.num}: {activeChapterData.title.replace(/^Chapter\s*\d+:\s*/i, '')}
+                    Chapter {activeChapterData.num}: {activeChapterTitle.replace(/^Chapter\s*\d+:\s*/i, '')}
                   </h2>
                   
                   <h3 className="text-xs font-bold text-stone-500 mb-6 uppercase tracking-widest font-mono">
-                    {activeChapterData.focus}
+                    {activeChapterFocus}
                   </h3>
 
                   {/* Reading Canvas: Serif, justified, Drop-cap in the first paragraph */}
                   <div className="font-serif text-stone-850 text-base md:text-[17px] leading-relaxed md:leading-loose text-[#33312E] space-y-6 max-w-2xl mx-auto">
-                    {activeChapterData.text.split("\n\n").filter(Boolean).map((pText, pIdx) => {
-                      if (pIdx === 0) {
-                        return (
-                          <p key={pIdx} className="first-letter:text-5xl first-letter:font-serif first-letter:font-bold first-letter:text-[#1B365D] first-letter:float-left first-letter:mr-3 first-letter:mt-1 text-justify">
-                            {pText}
-                          </p>
-                        );
-                      }
-                      return <p key={pIdx} className="text-justify">{pText}</p>;
-                    })}
+                    {parseMarkdown(activeChapterText)}
                   </div>
                 </div>
                 
@@ -327,7 +474,7 @@ function App() {
                 <div className="border-t border-stone-200 pt-6 mt-10 bg-[#FAF8F5] p-5 rounded border border-stone-200/50">
                   <h4 className="text-[10px] font-bold text-stone-500 uppercase tracking-widest mb-1.5 font-mono">📌 Academic Citation (Harvard Style)</h4>
                   <p className="text-xs text-stone-700 font-serif leading-relaxed italic">
-                    {activeChapterData.ref}
+                    {activeChapterRef}
                   </p>
                 </div>
               </div>

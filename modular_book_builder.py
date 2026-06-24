@@ -115,6 +115,64 @@ def generate_section_draft(config, section):
         logger.error(f"Failed to draft section {section['sec_title']}: {e}")
     return ""
 
+def translate_text(text, target_lang):
+    """Queries the local DGX Spark model (gemma-4-26B-A4B-it) to translate markdown text."""
+    if not text:
+        return ""
+    
+    lang_name = "Chinese Simplified (zh-CN)" if target_lang == "zh" else "German (de)"
+    
+    prompt = (
+        f"You are a professional academic translator. Translate the following English Markdown book chapter into {lang_name}.\n"
+        "Keep all Markdown formatting, list structures, bold text, headers (e.g. #, ##, ###), and inline citations (e.g. [Neuroscience, 2024]) exactly as they are.\n"
+        "Do not add any preamble, translator notes, or extra commentary. Output only the translated Markdown text.\n\n"
+        "Text to translate:\n"
+        f"{text}"
+    )
+    
+    payload = {
+        "model": "google/gemma-4-26B-A4B-it",
+        "messages": [{"role": "user", "content": prompt}],
+        "temperature": 0.1,  # Lower temp for precise translation
+        "max_tokens": 1500
+    }
+    
+    try:
+        res = requests.post(LOCAL_URL, json=payload, timeout=60)
+        if res.status_code == 200:
+            return res.json()["choices"][0]["message"]["content"].strip()
+        else:
+            logger.error(f"Translation API returned status {res.status_code}")
+    except Exception as e:
+        logger.error(f"Failed to translate text to {target_lang}: {e}")
+    return ""
+
+def translate_phrase(text, target_lang):
+    """Queries the local DGX Spark model to translate short phrases like titles and headings."""
+    if not text:
+        return ""
+    
+    lang_name = "Chinese Simplified (zh-CN)" if target_lang == "zh" else "German (de)"
+    
+    prompt = (
+        f"Translate the following phrase into {lang_name}. Output only the translation, with no explanation, punctuation, or wrapper text.\n\n"
+        f"Phrase: {text}"
+    )
+    
+    payload = {
+        "model": "google/gemma-4-26B-A4B-it",
+        "messages": [{"role": "user", "content": prompt}],
+        "temperature": 0.1,
+        "max_tokens": 100
+    }
+    
+    try:
+        res = requests.post(LOCAL_URL, json=payload, timeout=20)
+        if res.status_code == 200:
+            return res.json()["choices"][0]["message"]["content"].strip().strip('"').strip("'")
+    except Exception as e:
+        logger.error(f"Failed to translate phrase '{text}' to {target_lang}: {e}")
+    return text  # Fallback to English on error
 
 
 # Decoupled static data and compilation helpers
@@ -240,9 +298,30 @@ def main():
             "ref": "Local DGX Spark Audit Context (2026)"
         })
 
-    # Save to data.json if anything new was added
-    if new_sections_count > 0:
-        logger.info("Writing newly generated content into data.json...")
+    # 2.5 Perform local GPU translation for Chinese Simplified and German if missing
+    translations_updated = False
+    for item in generated_chapters:
+        # Translate to Chinese Simplified (zh)
+        if "text_zh" not in item or not item["text_zh"]:
+            logger.info(f"Local GPU Translation to Chinese Simplified: '{item['focus']}'...")
+            item["title_zh"] = translate_phrase(item["title"], "zh")
+            item["focus_zh"] = translate_phrase(item["focus"], "zh")
+            item["text_zh"] = translate_text(item["text"], "zh")
+            item["ref_zh"] = translate_phrase(item["ref"], "zh")
+            translations_updated = True
+
+        # Translate to German (de)
+        if "text_de" not in item or not item["text_de"]:
+            logger.info(f"Local GPU Translation to German: '{item['focus']}'...")
+            item["title_de"] = translate_phrase(item["title"], "de")
+            item["focus_de"] = translate_phrase(item["focus"], "de")
+            item["text_de"] = translate_text(item["text"], "de")
+            item["ref_de"] = translate_phrase(item["ref"], "de")
+            translations_updated = True
+
+    # Save to data.json if anything new was added or translated
+    if new_sections_count > 0 or translations_updated:
+        logger.info("Writing newly generated or translated content into data.json...")
         with open(DATA_JSON_PATH, "w", encoding="utf-8") as f:
             json.dump(generated_chapters, f, indent=2, ensure_ascii=False)
         logger.info("data.json successfully synchronized!")
