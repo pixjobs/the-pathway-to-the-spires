@@ -18,7 +18,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(me
 logger = logging.getLogger("modular_book")
 
 PROJECT_DIR = "/home/yang/.openclaw/workspace/oxbridge_guide"
-OUTPUT_FILE = os.path.join(PROJECT_DIR, "The_Pathway_to_the_Spires.docx")
+OUTPUT_FILE = os.path.join(PROJECT_DIR, "A_Pathway_to_Success.docx")
 REACT_APP_PATH = os.path.join(PROJECT_DIR, "web-app/src/App.jsx")
 LOCAL_URL = "http://192.168.50.190:8000/v1/chat/completions"
 
@@ -125,6 +125,38 @@ DATA_JSON_PATH = "/home/yang/.openclaw/workspace/oxbridge_guide/web-app/src/data
 WEB_APP_DIR = "/home/yang/.openclaw/workspace/oxbridge_guide/web-app"
 CANVAS_DIR = "/home/yang/.openclaw/canvas"
 
+def run_safety_checks_and_git_push():
+    logger.info("Starting safety and quality checks (running pytest)...")
+    try:
+        # Run pytest inside the correct environment
+        res_test = subprocess.run(["/home/yang/ds-env/bin/pytest"], cwd="/home/yang/.openclaw/workspace", capture_output=True, text=True)
+        if res_test.returncode != 0:
+            logger.error("Safety check FAILED! pytest suite failed. Halting git commit & push to prevent production crashes.")
+            logger.error("Pytest output:\n" + res_test.stdout + "\n" + res_test.stderr)
+            return False
+        logger.info("Safety check PASSED! All test suites are clean and healthy.")
+    except Exception as e:
+        logger.error(f"Failed to execute safety checks: {e}")
+        return False
+
+    logger.info("Committing and pushing updates safely to GitHub...")
+    try:
+        # Stage files
+        subprocess.run(["git", "add", "A_Pathway_to_Success.docx", "web-app/src/data.json"], cwd=PROJECT_DIR, check=True)
+        # Commit files
+        res_commit = subprocess.run(["git", "commit", "-m", "Auto-compile: Additive update to A Pathway to Success (Validated via Pytest)"], cwd=PROJECT_DIR, capture_output=True, text=True)
+        if "nothing to commit" in res_commit.stdout or "nothing added to commit" in res_commit.stdout:
+            logger.info("Nothing to commit, repository is already up to date.")
+            return True
+        
+        # Push to remote origin
+        subprocess.run(["git", "push", "origin", "main"], cwd=PROJECT_DIR, check=True)
+        logger.info("Successfully pushed all validated updates to GitHub (pixjobs/the-pathway-to-the-spires)!")
+        return True
+    except subprocess.CalledProcessError as e:
+        logger.error(f"Git operations failed with exit code {e.returncode}!")
+        return False
+
 def update_react_app_real(generated_chapters):
     logger.info("Writing newly generated content into data.json...")
     try:
@@ -163,53 +195,81 @@ def update_react_app_real(generated_chapters):
     except Exception as e:
         logger.error(f"Failed to stage built assets to Canvas root: {e}")
 
+    # Run safety checks and push to GitHub!
+    run_safety_checks_and_git_push()
+
 def main():
-    logger.info("Initializing Modular Book Builder Pipeline...")
-    doc = Document()
+    logger.info("Initializing Modular Book Builder Pipeline (Additive & Safe Mode)...")
     
-    # Page setup
-    for section in doc.sections:
-        section.top_margin = Inches(1.0)
-        section.bottom_margin = Inches(1.0)
-        section.left_margin = Inches(1.0)
-        section.right_margin = Inches(1.0)
-
-    # Title Page
-    logger.info("Drafting Book Cover Page...")
-    title_p = doc.add_paragraph()
-    title_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    title_p.paragraph_format.space_before = Pt(120)
-    title_p.paragraph_format.space_after = Pt(12)
-    title_run = title_p.add_run("THE PATHWAY TO THE SPIRES")
-    title_run.font.name = "Georgia"
-    title_run.font.size = Pt(32)
-    title_run.font.bold = True
-    title_run.font.color.rgb = RGBColor(27, 54, 93)
-
-    subtitle_p = doc.add_paragraph()
-    subtitle_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    subtitle_p.paragraph_format.space_after = Pt(180)
-    sub_run = subtitle_p.add_run("A Pragmatic, Self-Aware Guide to Academic and Personal Growth\nfrom Year 7 to Graduation")
-    sub_run.font.name = "Georgia"
-    sub_run.font.size = Pt(14)
-    sub_run.font.italic = True
-    sub_run.font.color.rgb = RGBColor(80, 80, 80)
-
-    author_p = doc.add_paragraph()
-    author_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    author_run = author_p.add_run("Prepared by Clawbot Personal Assistant\nLocal GPU-Accelerated Generation")
-    author_run.font.name = "Calibri"
-    author_run.font.size = Pt(11)
-    author_run.font.color.rgb = RGBColor(120, 120, 120)
-
-    doc.add_page_break()
-
-    # Generate sections page-by-page (bottom-up)
-    current_chap = None
+    # 1. Load existing React data
     generated_chapters = []
+    if os.path.exists(DATA_JSON_PATH):
+        try:
+            with open(DATA_JSON_PATH, "r", encoding="utf-8") as f:
+                generated_chapters = json.load(f)
+            logger.info(f"Loaded {len(generated_chapters)} existing chapters from data.json.")
+        except Exception as e:
+            logger.error(f"Failed to load existing data.json: {e}")
+
+    existing_focus_titles = {c["focus"] for c in generated_chapters}
+
+    # 2. Load or create docx
+    if os.path.exists(OUTPUT_FILE):
+        logger.info(f"Loading existing Word document from {OUTPUT_FILE} (Additive Mode)...")
+        doc = Document(OUTPUT_FILE)
+    else:
+        logger.info(f"Creating a fresh Word document...")
+        doc = Document()
+        
+        # Page setup
+        for section in doc.sections:
+            section.top_margin = Inches(1.0)
+            section.bottom_margin = Inches(1.0)
+            section.left_margin = Inches(1.0)
+            section.right_margin = Inches(1.0)
+
+        # Title Page
+        logger.info("Drafting Book Cover Page...")
+        title_p = doc.add_paragraph()
+        title_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        title_p.paragraph_format.space_before = Pt(120)
+        title_p.paragraph_format.space_after = Pt(12)
+        title_run = title_p.add_run("A PATHWAY TO SUCCESS")
+        title_run.font.name = "Georgia"
+        title_run.font.size = Pt(32)
+        title_run.font.bold = True
+        title_run.font.color.rgb = RGBColor(27, 54, 93)
+
+        subtitle_p = doc.add_paragraph()
+        subtitle_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        subtitle_p.paragraph_format.space_after = Pt(180)
+        sub_run = subtitle_p.add_run("A Pragmatic, Self-Aware Guide to Academic and Personal Growth\nfrom Year 7 to Graduation")
+        sub_run.font.name = "Georgia"
+        sub_run.font.size = Pt(14)
+        sub_run.font.italic = True
+        sub_run.font.color.rgb = RGBColor(80, 80, 80)
+
+        author_p = doc.add_paragraph()
+        author_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        author_run = author_p.add_run("Prepared by Clawbot Personal Assistant\nLocal GPU-Accelerated Generation")
+        author_run.font.name = "Calibri"
+        author_run.font.size = Pt(11)
+        author_run.font.color.rgb = RGBColor(120, 120, 120)
+
+        doc.add_page_break()
+
+    # 3. Generate sections page-by-page (bottom-up)
+    current_chap = None
+    new_sections_count = 0
     
     for sec in SECTIONS_CONFIG:
-        # Step 1: Write Chapter Heading if it is a new chapter
+        if sec["sec_title"] in existing_focus_titles:
+            logger.info(f"Section '{sec['sec_title']}' already exists. Skipping (Additive Mode).")
+            continue
+
+        new_sections_count += 1
+        
+        # Write Chapter Heading if it is a new chapter
         if sec["chap_title"] != current_chap:
             current_chap = sec["chap_title"]
             h = doc.add_paragraph()
@@ -222,18 +282,18 @@ def main():
                 r.font.size = Pt(22)
                 r.font.color.rgb = RGBColor(27, 54, 93)
 
-        # Step 2: Generate section text
+        # Generate section text
         logger.info(f"Generating Section: {sec['sec_title']}...")
         draft_text = generate_section_draft(DEFAULT_CONFIG, sec)
         if not draft_text:
             continue
 
-        # Step 3: Run local GPU embeddings to generate contextual markers/logs
+        # Run local GPU embeddings to generate contextual markers/logs
         logger.info(f"Extracting RTX 4080 GPU Embeddings for Section context...")
         embedding = embedding_model.encode([draft_text])[0]
         logger.info(f"GPU Embedding generated successfully! (Shape: {embedding.shape})")
 
-        # Step 4: Write Section Heading
+        # Write Section Heading
         sh = doc.add_paragraph()
         sh.text = sec["sec_title"]
         sh.paragraph_format.space_before = Pt(12)
@@ -244,7 +304,7 @@ def main():
             r.font.size = Pt(16)
             r.font.color.rgb = RGBColor(80, 80, 80)
 
-        # Step 5: Write Section Body
+        # Write Section Body
         lines = draft_text.split("\n")
         for line in lines:
             line_str = line.strip()
@@ -269,12 +329,16 @@ def main():
 
         doc.add_page_break()
 
-    # Save Book
-    doc.save(OUTPUT_FILE)
-    logger.info(f"Modular RAG Book successfully written and saved at: {OUTPUT_FILE}")
-
-    # Step 6: Sync to React App!
-    update_react_app_real(generated_chapters)
+    if new_sections_count > 0:
+        # Save Book
+        doc.save(OUTPUT_FILE)
+        logger.info(f"Modular RAG Book successfully written and saved at: {OUTPUT_FILE}")
+        # Sync to React App and push
+        update_react_app_real(generated_chapters)
+    else:
+        logger.info("No new sections needed compiling. Site is fully up to date.")
+        # Make sure current state is built and synchronized anyway just in case
+        update_react_app_real(generated_chapters)
 
 if __name__ == "__main__":
     main()

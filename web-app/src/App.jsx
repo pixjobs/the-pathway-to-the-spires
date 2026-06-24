@@ -97,7 +97,7 @@ function App() {
           <div className="flex items-center gap-3">
             <span className="text-2xl">🏛️</span>
             <div>
-              <h1 className="text-xl font-bold font-serif text-slate-900 tracking-wide uppercase">The Pathway to the Spires</h1>
+              <h1 className="text-xl font-bold font-serif text-slate-900 tracking-wide uppercase">A Pathway to Success</h1>
               <p className="text-xs text-slate-500 font-semibold tracking-wider font-mono">Oxbridge Admissions Strategic Companion</p>
             </div>
           </div>
@@ -113,7 +113,7 @@ function App() {
       <section className="bg-gradient-to-r from-slate-900 via-blue-950 to-slate-950 text-white py-12 px-6 text-center border-b-4 border-amber-600 shadow-md">
         <div className="max-w-3xl mx-auto">
           <h2 className="text-3xl sm:text-4xl font-extrabold font-serif mb-3 leading-tight tracking-wide text-amber-50">
-            The Pathway to the Spires
+            A Pathway to Success
           </h2>
           <p className="text-md sm:text-lg text-slate-300 italic mb-6 max-w-2xl mx-auto font-serif">
             A Pragmatic, Self-Aware Companion Guide to Independent Academic Progression
@@ -378,7 +378,7 @@ function App() {
 
       {/* Footer */}
       <footer className="bg-white border-t border-slate-200 py-6 text-center text-[10px] sm:text-xs text-slate-400 font-mono uppercase tracking-wider">
-        The Pathway to the Spires © 2026. All Rights Reserved. Produced locally via i9 + RTX 4080 Home Server.
+        A Pathway to Success © 2026. All Rights Reserved. Produced locally via i9 + RTX 4080 Home Server.
       </footer>
     </div>
   );
