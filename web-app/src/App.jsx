@@ -147,6 +147,41 @@ function parseMarkdown(text) {
   });
 }
 
+function renderReferenceLine(line, rIdx) {
+  if (!line) return null;
+  const parts = [];
+  let lastIndex = 0;
+  // Match standard markdown link [text](url)
+  const linkRegex = /\[([^\]]+)\]\((https?:\/\/[^\s\)]+)\)/g;
+  let match;
+  while ((match = linkRegex.exec(line)) !== null) {
+    if (match.index > lastIndex) {
+      parts.push(line.substring(lastIndex, match.index));
+    }
+    parts.push(
+      <a 
+        key={match.index}
+        href={match[2]} 
+        target="_blank" 
+        rel="noopener noreferrer" 
+        className="text-blue-800 hover:text-blue-950 font-sans font-semibold text-[10px] underline bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100 inline-flex items-center gap-0.5 mx-0.5 whitespace-nowrap"
+      >
+        {match[1]} ➔
+      </a>
+    );
+    lastIndex = linkRegex.lastIndex;
+  }
+  if (lastIndex < line.length) {
+    parts.push(line.substring(lastIndex));
+  }
+  const renderedContent = parts.length > 0 ? parts : line;
+  return (
+    <div key={rIdx} className="text-xs text-stone-700 font-serif leading-relaxed italic border-b border-stone-100/70 pb-2 last:pb-0 last:border-b-0 text-justify">
+      ✦ {renderedContent}
+    </div>
+  );
+}
+
 function App() {
   const [activeChap, setActiveChap] = useState(0);
   const [quoteIdx, setQuoteIdx] = useState(0);
@@ -472,10 +507,10 @@ function App() {
                 
                 {/* Academic Citation Footer (Muted Scholarly Citation) */}
                 <div className="border-t border-stone-200 pt-6 mt-10 bg-[#FAF8F5] p-5 rounded border border-stone-200/50">
-                  <h4 className="text-[10px] font-bold text-stone-500 uppercase tracking-widest mb-1.5 font-mono">📌 Academic Citation (Harvard Style)</h4>
-                  <p className="text-xs text-stone-700 font-serif leading-relaxed italic">
-                    {activeChapterRef}
-                  </p>
+                  <h4 className="text-[10px] font-bold text-stone-500 uppercase tracking-widest mb-2.5 font-mono">📌 Academic Citation (Harvard Style)</h4>
+                  <div className="space-y-2">
+                    {activeChapterRef.split('\n').filter(Boolean).map((line, rIdx) => renderReferenceLine(line, rIdx))}
+                  </div>
                 </div>
               </div>
 
