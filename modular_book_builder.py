@@ -18,7 +18,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(me
 logger = logging.getLogger("modular_book")
 
 PROJECT_DIR = "/home/yang/.openclaw/workspace/oxbridge_guide"
-OUTPUT_FILE = os.path.join(PROJECT_DIR, "A_Pathway_to_Success.docx")
+OUTPUT_FILE = os.path.join(PROJECT_DIR, "The_Pathway_to_the_Spires.docx")
 REACT_APP_PATH = os.path.join(PROJECT_DIR, "web-app/src/App.jsx")
 LOCAL_URL = "http://192.168.50.190:8000/v1/chat/completions"
 
@@ -142,9 +142,9 @@ def run_safety_checks_and_git_push():
     logger.info("Committing and pushing updates safely to GitHub...")
     try:
         # Stage files
-        subprocess.run(["git", "add", "A_Pathway_to_Success.docx", "web-app/src/data.json"], cwd=PROJECT_DIR, check=True)
+        subprocess.run(["git", "add", "The_Pathway_to_the_Spires.docx", "web-app/src/data.json"], cwd=PROJECT_DIR, check=True)
         # Commit files
-        res_commit = subprocess.run(["git", "commit", "-m", "Auto-compile: Additive update to A Pathway to Success (Validated via Pytest)"], cwd=PROJECT_DIR, capture_output=True, text=True)
+        res_commit = subprocess.run(["git", "commit", "-m", "Auto-compile: Additive update to The Pathway to the Spires (Validated via Pytest)"], cwd=PROJECT_DIR, capture_output=True, text=True)
         if "nothing to commit" in res_commit.stdout or "nothing added to commit" in res_commit.stdout:
             logger.info("Nothing to commit, repository is already up to date.")
             return True
@@ -213,76 +213,14 @@ def main():
 
     existing_focus_titles = {c["focus"] for c in generated_chapters}
 
-    # 2. Load or create docx
-    if os.path.exists(OUTPUT_FILE):
-        logger.info(f"Loading existing Word document from {OUTPUT_FILE} (Additive Mode)...")
-        doc = Document(OUTPUT_FILE)
-    else:
-        logger.info(f"Creating a fresh Word document...")
-        doc = Document()
-        
-        # Page setup
-        for section in doc.sections:
-            section.top_margin = Inches(1.0)
-            section.bottom_margin = Inches(1.0)
-            section.left_margin = Inches(1.0)
-            section.right_margin = Inches(1.0)
-
-        # Title Page
-        logger.info("Drafting Book Cover Page...")
-        title_p = doc.add_paragraph()
-        title_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        title_p.paragraph_format.space_before = Pt(120)
-        title_p.paragraph_format.space_after = Pt(12)
-        title_run = title_p.add_run("A PATHWAY TO SUCCESS")
-        title_run.font.name = "Georgia"
-        title_run.font.size = Pt(32)
-        title_run.font.bold = True
-        title_run.font.color.rgb = RGBColor(27, 54, 93)
-
-        subtitle_p = doc.add_paragraph()
-        subtitle_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        subtitle_p.paragraph_format.space_after = Pt(180)
-        sub_run = subtitle_p.add_run("A Pragmatic, Self-Aware Guide to Academic and Personal Growth\nfrom Year 7 to Graduation")
-        sub_run.font.name = "Georgia"
-        sub_run.font.size = Pt(14)
-        sub_run.font.italic = True
-        sub_run.font.color.rgb = RGBColor(80, 80, 80)
-
-        author_p = doc.add_paragraph()
-        author_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        author_run = author_p.add_run("Prepared by Clawbot Personal Assistant\nLocal GPU-Accelerated Generation")
-        author_run.font.name = "Calibri"
-        author_run.font.size = Pt(11)
-        author_run.font.color.rgb = RGBColor(120, 120, 120)
-
-        doc.add_page_break()
-
-    # 3. Generate sections page-by-page (bottom-up)
-    current_chap = None
+    # 2. Check for new sections to generate first
     new_sections_count = 0
-    
     for sec in SECTIONS_CONFIG:
         if sec["sec_title"] in existing_focus_titles:
-            logger.info(f"Section '{sec['sec_title']}' already exists. Skipping (Additive Mode).")
+            logger.info(f"Section '{sec['sec_title']}' already exists. Skipping Generation.")
             continue
 
         new_sections_count += 1
-        
-        # Write Chapter Heading if it is a new chapter
-        if sec["chap_title"] != current_chap:
-            current_chap = sec["chap_title"]
-            h = doc.add_paragraph()
-            h.text = f"Chapter {sec['chap_num']}: {current_chap}"
-            h.paragraph_format.space_before = Pt(14)
-            h.paragraph_format.space_after = Pt(6)
-            for r in h.runs:
-                r.font.name = "Georgia"
-                r.font.bold = True
-                r.font.size = Pt(22)
-                r.font.color.rgb = RGBColor(27, 54, 93)
-
-        # Generate section text
         logger.info(f"Generating Section: {sec['sec_title']}...")
         draft_text = generate_section_draft(DEFAULT_CONFIG, sec)
         if not draft_text:
@@ -293,9 +231,81 @@ def main():
         embedding = embedding_model.encode([draft_text])[0]
         logger.info(f"GPU Embedding generated successfully! (Shape: {embedding.shape})")
 
-        # Write Section Heading
+        # Record for React sync
+        generated_chapters.append({
+            "num": sec["chap_num"],
+            "title": sec["chap_title"],
+            "focus": sec["sec_title"],
+            "text": draft_text,
+            "ref": "Local DGX Spark Audit Context (2026)"
+        })
+
+    # Save to data.json if anything new was added
+    if new_sections_count > 0:
+        logger.info("Writing newly generated content into data.json...")
+        with open(DATA_JSON_PATH, "w", encoding="utf-8") as f:
+            json.dump(generated_chapters, f, indent=2, ensure_ascii=False)
+        logger.info("data.json successfully synchronized!")
+
+    # 3. Always write out/rebuild the DOCX book from the full list of chapters
+    logger.info(f"Rebuilding and saving full Word Document: {OUTPUT_FILE}...")
+    doc = Document()
+    
+    # Page setup
+    for section in doc.sections:
+        section.top_margin = Inches(1.0)
+        section.bottom_margin = Inches(1.0)
+        section.left_margin = Inches(1.0)
+        section.right_margin = Inches(1.0)
+
+    # Title Page
+    logger.info("Drafting Book Cover Page...")
+    title_p = doc.add_paragraph()
+    title_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    title_p.paragraph_format.space_before = Pt(120)
+    title_p.paragraph_format.space_after = Pt(12)
+    title_run = title_p.add_run("THE PATHWAY TO THE SPIRES")
+    title_run.font.name = "Georgia"
+    title_run.font.size = Pt(32)
+    title_run.font.bold = True
+    title_run.font.color.rgb = RGBColor(27, 54, 93)
+
+    subtitle_p = doc.add_paragraph()
+    subtitle_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    subtitle_p.paragraph_format.space_after = Pt(180)
+    sub_run = subtitle_p.add_run("A Pragmatic, Self-Aware Guide to Academic and Personal Growth\nfrom Year 7 to Graduation")
+    sub_run.font.name = "Georgia"
+    sub_run.font.size = Pt(14)
+    sub_run.font.italic = True
+    sub_run.font.color.rgb = RGBColor(80, 80, 80)
+
+    author_p = doc.add_paragraph()
+    author_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    author_run = author_p.add_run("Prepared by Clawbot Personal Assistant\nLocal GPU-Accelerated Generation")
+    author_run.font.name = "Calibri"
+    author_run.font.size = Pt(11)
+    author_run.font.color.rgb = RGBColor(120, 120, 120)
+
+    doc.add_page_break()
+
+    current_chap = None
+    for item in generated_chapters:
+        # Chapter Heading
+        if item["title"] != current_chap:
+            current_chap = item["title"]
+            h = doc.add_paragraph()
+            h.text = f"Chapter {item['num']}: {current_chap}"
+            h.paragraph_format.space_before = Pt(14)
+            h.paragraph_format.space_after = Pt(6)
+            for r in h.runs:
+                r.font.name = "Georgia"
+                r.font.bold = True
+                r.font.size = Pt(22)
+                r.font.color.rgb = RGBColor(27, 54, 93)
+
+        # Section Heading
         sh = doc.add_paragraph()
-        sh.text = sec["sec_title"]
+        sh.text = item["focus"]
         sh.paragraph_format.space_before = Pt(12)
         sh.paragraph_format.space_after = Pt(4)
         for r in sh.runs:
@@ -304,8 +314,8 @@ def main():
             r.font.size = Pt(16)
             r.font.color.rgb = RGBColor(80, 80, 80)
 
-        # Write Section Body
-        lines = draft_text.split("\n")
+        # Section Body
+        lines = item["text"].split("\n")
         for line in lines:
             line_str = line.strip()
             if not line_str:
@@ -318,27 +328,14 @@ def main():
             run.font.name = "Calibri"
             run.font.size = Pt(11)
 
-        # Record for React sync
-        generated_chapters.append({
-            "num": sec["chap_num"],
-            "title": sec["chap_title"],
-            "focus": sec["sec_title"],
-            "text": draft_text,
-            "ref": "Local DGX Spark Audit Context (2026)"
-        })
-
         doc.add_page_break()
 
-    if new_sections_count > 0:
-        # Save Book
-        doc.save(OUTPUT_FILE)
-        logger.info(f"Modular RAG Book successfully written and saved at: {OUTPUT_FILE}")
-        # Sync to React App and push
-        update_react_app_real(generated_chapters)
-    else:
-        logger.info("No new sections needed compiling. Site is fully up to date.")
-        # Make sure current state is built and synchronized anyway just in case
-        update_react_app_real(generated_chapters)
+    # Save Word Document
+    doc.save(OUTPUT_FILE)
+    logger.info(f"Modular RAG Book successfully written and saved at: {OUTPUT_FILE}")
+
+    # Synchronize built react app
+    update_react_app_real(generated_chapters)
 
 if __name__ == "__main__":
     main()

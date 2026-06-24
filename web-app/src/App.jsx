@@ -96,10 +96,10 @@ function App() {
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
           <div className="text-center md:text-left">
             <h1 className="text-2xl md:text-3xl font-extrabold font-serif text-stone-900 tracking-tight uppercase border-b border-stone-200 pb-1 mb-1">
-              A Pathway to Success
+              The Pathway to the Spires
             </h1>
             <p className="text-[11px] text-stone-500 font-semibold tracking-widest font-mono uppercase">
-              Elite G5 Admissions & Strategic Success Companion
+              Elite G5 Admissions & Strategic Spires Companion
             </p>
           </div>
           <div className="flex items-center gap-3">
@@ -117,7 +117,7 @@ function App() {
             Independent Scholarly Companion
           </p>
           <h2 className="text-3xl md:text-4xl font-extrabold text-stone-950 mb-3 tracking-tight">
-            A Pathway to Success
+            The Pathway to the Spires
           </h2>
           <p className="text-base text-stone-600 italic max-w-2xl mx-auto leading-relaxed">
             A Pragmatic, Self-Aware Companion Guide to Independent Academic Progression
@@ -389,7 +389,7 @@ function App() {
 
       {/* Footer */}
       <footer className="bg-[#FAF8F5] border-t border-stone-200 py-8 text-center text-[10px] text-stone-400 font-mono uppercase tracking-widest">
-        A Pathway to Success © 2026. All Rights Reserved. Produced locally via i9 + RTX 4080 Home Server.
+        The Pathway to the Spires © 2026. All Rights Reserved. Produced locally via i9 + RTX 4080 Home Server.
       </footer>
     </div>
   );
