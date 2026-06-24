@@ -1,0 +1,19 @@
+# Use .gitignore to define what is uploaded to Cloud Build
+# This keeps Cloud Build uploads extremely fast and secure!
+.gcloudignore
+.git
+.gitignore
+
+# Ignore local compiled directories & dependencies
+web-app/node_modules/
+web-app/dist/
+
+# Ignore local IDE/editor config
+.vscode/
+.idea/
+.DS_Store
+
+# Ignore local python caches & manuscript drafts
+__pycache__/
+*.pyc
+.pytest_cache/

@@ -59,8 +59,8 @@ gcloud auth login
 # Set your GCP Project ID
 gcloud config set project YOUR_PROJECT_ID
 
-# Build the Docker image using Google Cloud Build
-gcloud builds submit --tag gcr.io/YOUR_PROJECT_ID/the-pathway-to-the-spires:latest ./web-app
+# Build the Docker image using Google Cloud Build directly from the repository root
+gcloud builds submit --tag gcr.io/YOUR_PROJECT_ID/the-pathway-to-the-spires:latest
 ```
 
 ### 2. Deploy to Cloud Run
