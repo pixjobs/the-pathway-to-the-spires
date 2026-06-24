@@ -89,64 +89,65 @@ function App() {
   };
 
   return (
-    <div style={{ fontFamily: 'Calibri, sans-serif' }} className="min-h-screen bg-slate-50 text-slate-800 flex flex-col">
+    <div className="min-h-screen bg-[#FBF9F6] text-[#2D2A26] flex flex-col font-serif">
       
-      {/* Header */}
-      <header className="bg-white border-b border-slate-200 py-4 px-8 shadow-sm sticky top-0 z-10">
-        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
-          <div className="flex items-center gap-3">
-            <span className="text-2xl">🏛️</span>
-            <div>
-              <h1 className="text-xl font-bold font-serif text-slate-900 tracking-wide uppercase">A Pathway to Success</h1>
-              <p className="text-xs text-slate-500 font-semibold tracking-wider font-mono">Elite G5 Admissions & Strategic Success Companion</p>
-            </div>
+      {/* Header (High-End Newspaper Title-head) */}
+      <header className="bg-[#FAF8F5] border-b-4 border-double border-stone-300 py-6 px-8 sticky top-0 z-10 shadow-sm">
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+          <div className="text-center md:text-left">
+            <h1 className="text-2xl md:text-3xl font-extrabold font-serif text-stone-900 tracking-tight uppercase border-b border-stone-200 pb-1 mb-1">
+              A Pathway to Success
+            </h1>
+            <p className="text-[11px] text-stone-500 font-semibold tracking-widest font-mono uppercase">
+              Elite G5 Admissions & Strategic Success Companion
+            </p>
           </div>
           <div className="flex items-center gap-3">
-            <span className="text-xs bg-blue-900 text-blue-100 px-3 py-1.5 rounded-full font-mono font-semibold tracking-wider">
-              PORTABLE RUNTIME (LIVE)
+            <span className="text-xs bg-[#1B365D] text-stone-100 px-3 py-1 rounded font-mono font-bold tracking-wider uppercase">
+              NPM DEV SERVER
             </span>
           </div>
         </div>
       </header>
 
-      {/* Hero */}
-      <section className="bg-gradient-to-r from-slate-900 via-blue-950 to-slate-950 text-white py-12 px-6 text-center border-b-4 border-amber-600 shadow-md">
+      {/* Hero (Academic/Editorial Minimalist Panel) */}
+      <section className="bg-[#F6F3EE] border-b border-stone-200 py-10 px-6 text-center">
         <div className="max-w-3xl mx-auto">
-          <h2 className="text-3xl sm:text-4xl font-extrabold font-serif mb-3 leading-tight tracking-wide text-amber-50">
+          <p className="text-xs font-bold text-stone-500 uppercase tracking-widest font-mono mb-2">
+            Independent Scholarly Companion
+          </p>
+          <h2 className="text-3xl md:text-4xl font-extrabold text-stone-950 mb-3 tracking-tight">
             A Pathway to Success
           </h2>
-          <p className="text-md sm:text-lg text-slate-300 italic mb-6 max-w-2xl mx-auto font-serif">
+          <p className="text-base text-stone-600 italic max-w-2xl mx-auto leading-relaxed">
             A Pragmatic, Self-Aware Companion Guide to Independent Academic Progression
           </p>
-          <div className="inline-flex bg-slate-800/80 px-4 py-2 rounded-full border border-slate-700 text-xs font-semibold text-amber-500 gap-2 items-center">
-            <span>⚡ Local GPU Embeddings Synchronized</span>
-            <span className="text-slate-500">|</span>
-            <span>Ref: 2026.6</span>
-          </div>
         </div>
       </section>
 
       {/* Main Layout */}
       <main className="max-w-6xl mx-auto px-4 sm:px-6 py-10 flex-1 grid grid-cols-1 lg:grid-cols-12 gap-8 w-full">
         
-        {/* Sidebar: Search & Chapters Navigation */}
+        {/* Sidebar: Search, Navigation & Portals */}
         <div className="lg:col-span-4 space-y-6">
           
-          {/* Chapter Search */}
-          <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-            <label className="text-xs font-bold font-mono text-slate-500 uppercase tracking-wider block mb-2">Search Corpus</label>
+          {/* Chapter Search (Classically Boxed) */}
+          <div className="bg-white p-5 rounded border border-stone-200 shadow-sm">
+            <label className="text-[10px] font-bold font-mono text-stone-500 uppercase tracking-wider block mb-2">
+              Search Index & Corpus
+            </label>
             <div className="relative">
               <input
                 type="text"
                 placeholder="Search concepts, chapters..."
                 value={searchQuery}
                 onChange={(e) => { setSearchQuery(e.target.value); setActiveChap(0); }}
-                className="w-full text-sm px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-900 focus:bg-white transition duration-200"
+                className="w-full text-xs font-sans px-4 py-2 bg-stone-50 border border-stone-200 rounded focus:outline-none focus:ring-1 focus:ring-stone-400 focus:bg-white transition duration-150"
               />
               {searchQuery && (
                 <button 
                   onClick={() => setSearchQuery("")} 
-                  className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600 text-sm font-bold"
+                  className="absolute right-3 top-2 text-stone-400 hover:text-stone-600 text-sm font-bold"
                 >
                   ✕
                 </button>
@@ -154,16 +155,16 @@ function App() {
             </div>
           </div>
 
-          {/* Chapters Navigation */}
-          <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-            <h3 className="text-xs font-bold font-serif text-slate-900 mb-4 uppercase tracking-wider border-b pb-2 flex justify-between">
+          {/* Chapters Navigation (Classical Editorial Block) */}
+          <div className="bg-white p-5 rounded border border-stone-200 shadow-sm">
+            <h3 className="text-xs font-bold font-serif text-stone-900 mb-4 uppercase tracking-wider border-b border-stone-200 pb-2 flex justify-between">
               <span>Chapter Navigation</span>
-              <span className="text-slate-400 text-xs font-mono">{filteredChapters.length} found</span>
+              <span className="text-stone-400 text-xs font-mono">{filteredChapters.length} found</span>
             </h3>
             
-            <div className="flex flex-col gap-2 max-h-[350px] overflow-y-auto pr-1">
+            <div className="flex flex-col gap-1.5 max-h-[350px] overflow-y-auto pr-1">
               {filteredChapters.length === 0 ? (
-                <div className="text-center py-6 text-slate-400 text-sm italic">
+                <div className="text-center py-6 text-stone-400 text-xs italic font-serif">
                   No chapters match your query.
                 </div>
               ) : (
@@ -173,16 +174,16 @@ function App() {
                     <button
                       key={idx}
                       onClick={() => setActiveChap(idx)}
-                      className={`w-full text-left px-4 py-3 rounded-xl transition duration-200 text-sm font-medium border border-transparent ${
+                      className={`w-full text-left px-3.5 py-2.5 rounded transition duration-150 text-xs font-medium border ${
                         isCurrent
-                          ? 'bg-blue-900 text-white shadow-md border-blue-950 font-bold'
-                          : 'bg-slate-50 text-slate-700 hover:bg-slate-100 hover:border-slate-200'
+                          ? 'bg-[#1B365D] text-white border-[#1B365D] font-bold'
+                          : 'bg-[#FAF8F5] text-stone-700 hover:bg-stone-50 border-stone-200'
                       }`}
                     >
-                      <div className="flex justify-between items-start gap-2">
-                        <span>Ch {chap.num}: {chap.title.replace(/^Chapter\s*\d+:\s*/i, '')}</span>
+                      <div className="font-serif">
+                        Ch {chap.num}: {chap.title.replace(/^Chapter\s*\d+:\s*/i, '')}
                       </div>
-                      <div className={`text-xs mt-1 font-normal ${isCurrent ? 'text-amber-200' : 'text-slate-400'}`}>
+                      <div className={`text-[10px] mt-0.5 font-normal font-sans ${isCurrent ? 'text-stone-200' : 'text-stone-400'}`}>
                         {chap.focus}
                       </div>
                     </button>
@@ -192,95 +193,95 @@ function App() {
             </div>
           </div>
 
-          {/* Motivation Quote */}
-          <div className="bg-amber-50/70 border border-amber-200 p-5 rounded-2xl shadow-sm">
-            <h4 className="text-xs font-bold text-amber-800 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+          {/* Motivation Quote (Prestige Muted Callout) */}
+          <div className="bg-[#FAF8F5] border border-stone-200 p-5 rounded">
+            <h4 className="text-[10px] font-bold text-stone-500 uppercase tracking-widest mb-2 font-mono flex items-center gap-1.5">
               <span>💡 Mindset Anchor</span>
             </h4>
-            <p className="text-xs text-amber-950 italic leading-relaxed mb-3 font-serif">
+            <p className="text-xs text-stone-800 italic leading-relaxed mb-3">
               "{MOTIVATION_QUOTES[quoteIdx].text}"
             </p>
-            <div className="flex justify-between items-center">
-              <span className="text-[10px] text-amber-800 font-semibold tracking-wider uppercase font-mono">
+            <div className="flex justify-between items-center border-t border-stone-100 pt-2.5">
+              <span className="text-[9px] text-stone-500 font-semibold tracking-wide uppercase font-sans">
                 — {MOTIVATION_QUOTES[quoteIdx].author}
               </span>
               <button 
                 onClick={rotateQuote} 
-                className="text-xs font-bold text-amber-700 hover:text-amber-950 transition font-mono"
+                className="text-[10px] font-bold text-stone-700 hover:text-stone-950 transition font-mono uppercase tracking-wider"
               >
-                Rotate ➔
+                Next ➔
               </button>
             </div>
           </div>
 
-          {/* Verified Portals & Resources */}
-          <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-            <h3 className="text-xs font-bold font-serif text-slate-900 border-b pb-2 uppercase tracking-wider flex items-center gap-1.5">
-              <span>🔗 Verified Portals</span>
+          {/* Verified Portals & Resources (High-End Links Hub) */}
+          <div className="bg-white p-5 rounded border border-stone-200 shadow-sm space-y-4">
+            <h3 className="text-xs font-bold font-serif text-stone-900 border-b border-stone-200 pb-2 uppercase tracking-wider">
+              🔗 Verified Portals
             </h3>
             
-            <p className="text-[11px] text-slate-500 leading-normal font-semibold text-blue-950 uppercase tracking-widest font-mono">
+            <p className="text-[10px] font-bold text-stone-500 uppercase tracking-widest font-mono">
               ✦ Oxbridge & Core Competitions
             </p>
             
-            <div className="space-y-3 pl-1">
-              <div className="text-xs">
+            <div className="space-y-3 pl-1 font-sans">
+              <div className="text-[11px]">
                 <a href="https://www.ox.ac.uk/admissions/undergraduate" target="_blank" rel="noopener noreferrer" className="font-bold text-blue-900 hover:underline block mb-0.5">
                   Oxford Admissions ➔
                 </a>
-                <p className="text-[10px] text-slate-500 leading-normal">
-                  Official Oxford undergraduate portal. Check course entry requirements and college choosing guides.
+                <p className="text-[10px] text-stone-500 leading-normal">
+                  Check course entry requirements and collegiate choosing guides.
                 </p>
               </div>
-              <div className="text-xs border-t border-slate-100 pt-2.5">
+              <div className="text-[11px] border-t border-stone-100 pt-2.5">
                 <a href="https://www.undergraduate.study.cam.ac.uk" target="_blank" rel="noopener noreferrer" className="font-bold text-blue-900 hover:underline block mb-0.5">
                   Cambridge Admissions ➔
                 </a>
-                <p className="text-[10px] text-slate-500 leading-normal">
-                  Cambridge study guide. Use to track application dates, tutorial styles, and pool assessments.
+                <p className="text-[10px] text-stone-500 leading-normal">
+                  Track Cambridge application dates, tutorial styles, and pool assessments.
                 </p>
               </div>
-              <div className="text-xs border-t border-slate-100 pt-2.5">
-                <span className="font-bold text-blue-900 block mb-0.5">Academic Competitions:</span>
-                <p className="text-[10px] text-slate-500 leading-normal">
-                  <a href="https://www.johnlockeinstitute.com/essay-competition" target="_blank" rel="noopener noreferrer" className="text-blue-800 hover:underline font-medium">John Locke Global Essay Prize</a> | <a href="https://ukmt.org.uk/" target="_blank" rel="noopener noreferrer" className="text-blue-800 hover:underline font-medium">UKMT Challenges</a>
+              <div className="text-[11px] border-t border-stone-100 pt-2.5">
+                <span className="font-bold text-[#1B365D] block mb-0.5 uppercase tracking-wider text-[9px]">Competitions:</span>
+                <p className="text-[10px] text-stone-500 leading-normal">
+                  <a href="https://www.johnlockeinstitute.com/essay-competition" target="_blank" rel="noopener noreferrer" className="text-blue-800 hover:underline font-medium">John Locke Global Prize</a> | <a href="https://ukmt.org.uk/" target="_blank" rel="noopener noreferrer" className="text-blue-800 hover:underline font-medium">UKMT Challenges</a>
                 </p>
               </div>
-              <div className="text-xs border-t border-slate-100 pt-2.5">
-                <span className="font-bold text-blue-900 block mb-0.5">Advanced Mathematics Prep:</span>
-                <p className="text-[10px] text-slate-500 leading-normal">
-                  <a href="https://step.maths.org/" target="_blank" rel="noopener noreferrer" className="text-blue-800 hover:underline font-medium">STEP Support Programme</a> | <a href="https://esat-tmua.ac.uk/" target="_blank" rel="noopener noreferrer" className="text-blue-800 hover:underline font-medium">ESAT & TMUA Portal</a>
+              <div className="text-[11px] border-t border-stone-100 pt-2.5">
+                <span className="font-bold text-[#1B365D] block mb-0.5 uppercase tracking-wider text-[9px]">Maths & STEM Prep:</span>
+                <p className="text-[10px] text-stone-500 leading-normal">
+                  <a href="https://step.maths.org/" target="_blank" rel="noopener noreferrer" className="text-blue-800 hover:underline font-medium">STEP Support</a> | <a href="https://esat-tmua.ac.uk/" target="_blank" rel="noopener noreferrer" className="text-blue-800 hover:underline font-medium">ESAT & TMUA Portal</a>
                 </p>
               </div>
             </div>
 
-            <p className="text-[11px] text-slate-500 leading-normal font-semibold text-blue-950 uppercase tracking-widest font-mono border-t border-slate-100 pt-4">
+            <p className="text-[10px] font-bold text-stone-500 uppercase tracking-widest font-mono border-t border-stone-100 pt-4">
               ✦ G5 Elite Portals
             </p>
 
-            <div className="space-y-3 pl-1">
-              <div className="text-xs">
+            <div className="space-y-3 pl-1 font-sans">
+              <div className="text-[11px]">
                 <a href="https://www.imperial.ac.uk/study/apply/undergraduate/" target="_blank" rel="noopener noreferrer" className="font-bold text-blue-900 hover:underline block mb-0.5">
                   Imperial College London study ➔
                 </a>
-                <p className="text-[10px] text-slate-500 leading-normal">
-                  Admissions for STEM and business analytics. Focuses heavily on the quantitative ESAT/TMUA assessments.
+                <p className="text-[10px] text-stone-500 leading-normal">
+                  Undergraduate admissions. Focuses heavily on the quantitative ESAT/TMUA assessments.
                 </p>
               </div>
-              <div className="text-xs border-t border-slate-100 pt-2.5">
+              <div className="text-[11px] border-t border-stone-100 pt-2.5">
                 <a href="https://www.lse.ac.uk/study-at-lse/undergraduate" target="_blank" rel="noopener noreferrer" className="font-bold text-blue-900 hover:underline block mb-0.5">
                   LSE Undergraduate Admissions ➔
                 </a>
-                <p className="text-[10px] text-slate-500 leading-normal">
-                  No interview system. Selection relies heavily on academic rigor and an elite, hyper-focused UCAS statement.
+                <p className="text-[10px] text-stone-500 leading-normal">
+                  No interview process. Selection relies heavily on UCAS Personal Statement rigor.
                 </p>
               </div>
-              <div className="text-xs border-t border-slate-100 pt-2.5">
+              <div className="text-[11px] border-t border-stone-100 pt-2.5">
                 <a href="https://www.ucl.ac.uk/study/undergraduate" target="_blank" rel="noopener noreferrer" className="font-bold text-blue-900 hover:underline block mb-0.5">
                   UCL Study & Admissions ➔
                 </a>
-                <p className="text-[10px] text-slate-500 leading-normal">
-                  Broad interdisciplinary study and global engagement. Requires strong analytical-humanities writing.
+                <p className="text-[10px] text-stone-500 leading-normal">
+                  Broad interdisciplinary study, requires strong analytical-humanities writing.
                 </p>
               </div>
             </div>
@@ -291,70 +292,80 @@ function App() {
         <div className="lg:col-span-8 space-y-6">
           {activeChapterData ? (
             <>
-              {/* Main Chapter Content Card */}
-              <div className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+              {/* Main Chapter Content Card (High-End Newspaper Reading Block) */}
+              <div className="bg-[#FDFBF9] p-8 sm:p-12 rounded border border-stone-200/80 shadow-sm flex flex-col justify-between min-h-[400px]">
                 <div>
-                  <div className="text-xs text-blue-900 font-bold uppercase tracking-wider border-b pb-2 mb-4 flex justify-between items-center font-mono">
+                  <div className="text-[10px] text-stone-500 font-bold uppercase tracking-widest border-b border-stone-100 pb-2 mb-6 flex justify-between items-center font-mono">
                     <span>Active Milestone Focus</span>
                     <span>{activeChapterData.focus.split(" ")[0]}</span>
                   </div>
                   
-                  <h2 className="text-xl sm:text-2xl font-bold font-serif text-slate-950 mb-6 leading-tight">
+                  <h2 className="text-2xl sm:text-3xl font-bold font-serif text-stone-900 mb-6 leading-tight tracking-tight border-b-2 border-double border-stone-200 pb-4">
                     Chapter {activeChapterData.num}: {activeChapterData.title.replace(/^Chapter\s*\d+:\s*/i, '')}
                   </h2>
                   
-                  <h3 className="text-sm font-semibold text-slate-500 mb-4 uppercase tracking-wider font-mono">
+                  <h3 className="text-xs font-bold text-stone-500 mb-6 uppercase tracking-widest font-mono">
                     {activeChapterData.focus}
                   </h3>
 
-                  <div className="text-slate-700 text-sm leading-relaxed mb-8 whitespace-pre-line space-y-4">
-                    {activeChapterData.text}
+                  {/* Reading Canvas: Serif, justified, Drop-cap in the first paragraph */}
+                  <div className="font-serif text-stone-850 text-base md:text-[17px] leading-relaxed md:leading-loose text-[#33312E] space-y-6 max-w-2xl mx-auto">
+                    {activeChapterData.text.split("\n\n").filter(Boolean).map((pText, pIdx) => {
+                      if (pIdx === 0) {
+                        return (
+                          <p key={pIdx} className="first-letter:text-5xl first-letter:font-serif first-letter:font-bold first-letter:text-[#1B365D] first-letter:float-left first-letter:mr-3 first-letter:mt-1 text-justify">
+                            {pText}
+                          </p>
+                        );
+                      }
+                      return <p key={pIdx} className="text-justify">{pText}</p>;
+                    })}
                   </div>
                 </div>
                 
-                {/* Academic Citation Footer */}
-                <div className="border-t border-slate-100 pt-4 bg-slate-50 p-4 rounded-xl border border-slate-200/50">
-                  <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1 font-mono">📌 Academic Citation (Harvard Style)</h4>
-                  <p className="text-xs text-slate-700 font-serif leading-relaxed italic">
+                {/* Academic Citation Footer (Muted Scholarly Citation) */}
+                <div className="border-t border-stone-200 pt-6 mt-10 bg-[#FAF8F5] p-5 rounded border border-stone-200/50">
+                  <h4 className="text-[10px] font-bold text-stone-500 uppercase tracking-widest mb-1.5 font-mono">📌 Academic Citation (Harvard Style)</h4>
+                  <p className="text-xs text-stone-700 font-serif leading-relaxed italic">
                     {activeChapterData.ref}
                   </p>
                 </div>
               </div>
 
-              {/* Interactive Self-Awareness Audit Checklist */}
+              {/* Interactive Self-Awareness Audit Checklist (Clean Editorial Appendix) */}
               {AUDIT_ITEMS[activeChapterData.num] && (
-                <div className="bg-slate-900 text-slate-100 p-6 sm:p-8 rounded-2xl border border-slate-800 shadow-md">
-                  <div className="flex justify-between items-center border-b border-slate-800 pb-3 mb-4">
-                    <h3 className="text-sm font-bold uppercase tracking-wider text-amber-500 font-serif flex items-center gap-2">
+                <div className="bg-[#FAF8F5] text-stone-800 p-8 rounded border border-stone-200 shadow-sm">
+                  <div className="flex justify-between items-center border-b border-stone-200 pb-3 mb-5">
+                    <h3 className="text-xs font-bold uppercase tracking-widest text-[#1B365D] font-mono flex items-center gap-2">
                       <span>🧠 Metacognitive Progress Check</span>
                     </h3>
-                    <span className="text-[10px] bg-slate-800 text-slate-300 font-mono px-2 py-1 rounded">
-                      Ch {activeChapterData.num} Audit
+                    <span className="text-[10px] bg-stone-200 text-stone-700 font-mono px-2 py-0.5 rounded">
+                      Ch {activeChapterData.num} Appendix
                     </span>
                   </div>
-                  <p className="text-xs text-slate-400 italic mb-4">
+                  <p className="text-xs text-stone-500 italic mb-5">
                     Read the diagnostic criteria below and toggle checkboxes to log your own self-directed study trajectory:
                   </p>
-                  <div className="space-y-3">
+                  <div className="space-y-3 font-sans">
                     {AUDIT_ITEMS[activeChapterData.num].map((item, idx) => {
                       const isChecked = !!checkedItems[`${activeChapterData.num}-${idx}`];
                       return (
                         <div 
                           key={idx} 
                           onClick={() => handleCheckboxChange(activeChapterData.num, idx)}
-                          className={`flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition duration-200 ${
+                          className={`flex items-start gap-3.5 p-3.5 rounded border cursor-pointer transition duration-150 ${
                             isChecked 
-                              ? 'bg-slate-800/80 border-amber-600/40 text-white' 
-                              : 'bg-slate-950/40 border-slate-800 hover:bg-slate-800/30'
+                              ? 'bg-white border-stone-400 shadow-inner' 
+                              : 'bg-white/40 border-stone-200 hover:bg-white'
                           }`}
                         >
                           <input
                             type="checkbox"
                             checked={isChecked}
                             onChange={() => {}} // Controlled by outer div click
-                            className="mt-0.5 rounded text-amber-600 focus:ring-amber-500"
+                            className="mt-0.5 rounded border-stone-300 text-[#1B365D] focus:ring-[#1B365D]"
                           />
-                          <p className="text-xs leading-relaxed select-none">
+                          <p className="text-xs leading-relaxed text-stone-700 select-none">
                             {item}
                           </p>
                         </div>
@@ -365,9 +376,9 @@ function App() {
               )}
             </>
           ) : (
-            <div className="bg-white p-12 rounded-2xl border border-slate-200 shadow-sm text-center">
+            <div className="bg-white p-12 rounded border border-stone-200 shadow-sm text-center font-serif">
               <span className="text-4xl block mb-3">🔍</span>
-              <p className="text-slate-500 text-sm italic">
+              <p className="text-stone-500 text-sm italic">
                 Select a chapter from the list or clear your search to explore the Strategic Admissions Guide.
               </p>
             </div>
@@ -377,7 +388,7 @@ function App() {
       </main>
 
       {/* Footer */}
-      <footer className="bg-white border-t border-slate-200 py-6 text-center text-[10px] sm:text-xs text-slate-400 font-mono uppercase tracking-wider">
+      <footer className="bg-[#FAF8F5] border-t border-stone-200 py-8 text-center text-[10px] text-stone-400 font-mono uppercase tracking-widest">
         A Pathway to Success © 2026. All Rights Reserved. Produced locally via i9 + RTX 4080 Home Server.
       </footer>
     </div>
