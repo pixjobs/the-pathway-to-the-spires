@@ -1,0 +1,14 @@
+# Node modules and build output
+node_modules/
+dist/
+.DS_Store
+
+# Local dev/test caches
+.cache/
+.pytest_cache/
+__pycache__/
+*.pyc
+
+# Local backup / secrets
+*.env
+*.local
