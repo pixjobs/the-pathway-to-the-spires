@@ -1,4 +1,4 @@
-# 🏛️ A Pathway to Success
+# 🏛️ The Pathway to the Spires
 
 > A strategic, self-aware, and highly practical companion roadmap and interactive platform guiding candidates through elite UK G5 (Oxbridge, Imperial, LSE, and UCL) admissions.
 
@@ -6,8 +6,8 @@
 
 ## 🚀 Overview
 
-**A Pathway to Success** is a dual-track academic product:
-1. **The Manuscript (`A_Pathway_to_Success.docx`):** A deep-drafted, academic-grade strategic guidebook compiled from Year 7 up to Year 13 graduation.
+**The Pathway to the Spires** is a dual-track academic product:
+1. **The Manuscript (`The_Pathway_to_the_Spires.docx`):** A deep-drafted, academic-grade strategic guidebook compiled from Year 7 up to Year 13 graduation.
 2. **The Companion Web Application:** An interactive React & Vite dashboard featuring:
    * **Structured Timelines:** Categorized milestones tracking progression phases.
    * **Reactive Corpus Search:** Client-side, instant search indexing across the entire strategic text.
@@ -82,7 +82,7 @@ oxbridge_guide/
 ├── .gitignore                          # Standard git ignore definitions
 ├── modular_book_builder.py             # Local GPU modular book compilation script
 ├── build_guide.py                      # Sequential Gemini book builder script
-├── A_Pathway_to_Success.docx      # Compiled Word Manuscript
+├── The_Pathway_to_the_Spires.docx # Compiled Word Manuscript
 └── web-app/                            # Vite React companion web application
     ├── Dockerfile                      # Production Cloud Run container build
     ├── nginx.conf.template             # Dynamic PORT template for Cloud Run Nginx
