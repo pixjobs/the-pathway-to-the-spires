@@ -131,6 +131,64 @@ function parseMarkdown(text) {
       );
     }
 
+    // Detect markdown tables: lines with pipe separators | col | col |
+    const isTableBlock = lines.every(line => line.includes('|') && !line.trimStart().startsWith('|---') && line.trim() !== '');
+    if (isTableBlock && lines.length >= 2) {
+      const isHeaderRow = lines[0].includes('|') && /\|\s*-+\s*/.test(lines[1]);
+      const headerIdx = isHeaderRow ? 2 : 0; // skip separator line if present
+      const tbodyLines = isHeaderRow ? lines.slice(2) : lines;
+
+      function parseTableCells(line) {
+        return line.split('|').map(c => c.trim()).filter((c, i, arr) => {
+          // Filter out leading/trailing empty cells from | col | col |
+          if (i === 0 && c === '') return false;
+          if (i === arr.length - 1 && c === '') return false;
+          return true;
+        });
+      }
+
+      return (
+        <div key={pIdx} className="my-6 overflow-x-auto rounded-lg border border-stone-200 shadow-sm">
+          <table className="w-full border-collapse bg-white">
+            {isHeaderRow && (
+              <thead>
+                <tr>
+                  {parseTableCells(lines[0]).map((cell, cIdx) => (
+                    <th
+                      key={cIdx}
+                      className="px-4 py-2.5 text-left text-[11px] font-bold font-sans uppercase tracking-wider text-stone-500 bg-[#F6F3EE] border-b-2 border-stone-200 whitespace-nowrap"
+                    >
+                      {renderInlineMarkdown(cell)}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+            )}
+            <tbody>
+              {tbodyLines.map((line, rIdx) => {
+                const cells = parseTableCells(line);
+                return (
+                  <tr
+                    key={rIdx}
+                    className={`${rIdx % 2 === 0 ? 'bg-white' : 'bg-[#FBF9F6]'} hover:bg-stone-50 transition-colors duration-100`}
+                  >
+                    {cells.map((cell, cIdx) => (
+                      <td
+                        key={cIdx}
+                        className={`px-4 py-2 text-[12px] text-stone-700 border-b border-stone-100 leading-relaxed ${cIdx === 0 ? 'font-medium text-stone-800' : ''}`}
+                      >
+                        {renderInlineMarkdown(cell)}
+                      </td>
+                    ))}
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      );
+    }
+
     if (!hasShownDropCap) {
       hasShownDropCap = true;
       return (
